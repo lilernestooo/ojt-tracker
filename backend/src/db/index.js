@@ -1,13 +1,12 @@
-require('dotenv').config();
-const admin = require('firebase-admin');
-const path = require('path');
+const { Pool } = require('pg');
 
-const serviceAccount = require(path.resolve(__dirname, '../../serviceAccountKey.json'));
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
 });
 
-const db = admin.firestore();
+pool.on('error', (err) => {
+  console.error('Unexpected DB error:', err);
+});
 
-module.exports = { db };
+module.exports = pool;

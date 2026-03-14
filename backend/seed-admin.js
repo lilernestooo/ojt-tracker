@@ -1,37 +1,37 @@
 require('dotenv').config();
 const bcrypt = require('bcryptjs');
-const admin = require('firebase-admin');
-const path = require('path');
-
-const serviceAccount = require(path.resolve(process.env.FIREBASE_SERVICE_ACCOUNT));
-admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
-const db = admin.firestore();
+const pool = require('./src/db');
 
 async function seedAdmin() {
-  const email = 'Ernesto@dev.com';
+  const email    = 'Ernesto@dev.com';
   const password = 'admin022704';
-  const name = 'Ernesto';
+  const name     = 'Ernesto';
 
   try {
-    const existing = await db.collection('users').where('email', '==', email).limit(1).get();
-    const hashed = await bcrypt.hash(password, 10);
+    const hashed  = await bcrypt.hash(password, 10);
+    const existing = await pool.query('SELECT id FROM users WHERE email=$1', [email]);
 
-    if (!existing.empty) {
-      await existing.docs[0].ref.update({ role: 'admin', password: hashed });
+    if (existing.rows.length) {
+      await pool.query(
+        'UPDATE users SET role=$1, password=$2 WHERE email=$3',
+        ['admin', hashed, email]
+      );
       console.log('✅ Existing user updated to admin!');
     } else {
-      await db.collection('users').add({
-        name, email, password: hashed,
-        role: 'admin', required_hours: 0,
-        company: null, created_at: new Date().toISOString(),
-      });
+      await pool.query(
+        `INSERT INTO users (name, email, password, role, required_hours, starting_hours, company)
+         VALUES ($1, $2, $3, 'admin', 0, 0, NULL)`,
+        [name, email, hashed]
+      );
       console.log('✅ Admin created!');
     }
+
     console.log(`   Email:    ${email}`);
     console.log(`   Password: ${password}`);
   } catch (err) {
     console.error('Error seeding admin:', err.message);
   } finally {
+    await pool.end();
     process.exit(0);
   }
 }

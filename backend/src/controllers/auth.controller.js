@@ -1,8 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { db } = require('../db');
-
-const usersCol = db.collection('users');
+const pool = require('../db');
 
 const register = async (req, res) => {
   const { name, email, password, company, required_hours, starting_hours } = req.body;
@@ -10,32 +8,19 @@ const register = async (req, res) => {
     return res.status(400).json({ error: 'Name, email and password are required' });
 
   try {
-    const existing = await usersCol.where('email', '==', email).limit(1).get();
-    if (!existing.empty) return res.status(409).json({ error: 'Email already in use' });
+    const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
+    if (existing.rows.length) return res.status(409).json({ error: 'Email already in use' });
 
     const hashed = await bcrypt.hash(password, 10);
-    const docRef = await usersCol.add({
-      name,
-      email,
-      password: hashed,
-      role: 'trainee',
-      required_hours: required_hours || 486,
-      starting_hours: starting_hours || 0,
-      company: company || null,
-      created_at: new Date().toISOString(),
-    });
+    const result = await pool.query(
+      `INSERT INTO users (name, email, password, role, required_hours, starting_hours, company)
+       VALUES ($1, $2, $3, 'trainee', $4, $5, $6)
+       RETURNING id, name, email, role, required_hours, starting_hours, company`,
+      [name, email, hashed, required_hours || 486, starting_hours || 0, company || null]
+    );
 
-    const user = {
-      id: docRef.id,
-      name,
-      email,
-      role: 'trainee',
-      required_hours: required_hours || 486,
-      starting_hours: starting_hours || 0,
-      company: company || null,
-    };
-
-    const token = jwt.sign({ id: docRef.id, role: 'trainee' }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const user = result.rows[0];
+    const token = jwt.sign({ id: user.id, role: 'trainee' }, process.env.JWT_SECRET, { expiresIn: '7d' });
     res.status(201).json({ user, token });
   } catch (err) {
     console.error(err);
@@ -48,26 +33,24 @@ const login = async (req, res) => {
   if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
 
   try {
-    const snap = await usersCol.where('email', '==', email).limit(1).get();
-    if (snap.empty) return res.status(401).json({ error: 'Invalid credentials' });
+    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    if (!result.rows.length) return res.status(401).json({ error: 'Invalid credentials' });
 
-    const doc = snap.docs[0];
-    const data = doc.data();
-
+    const data = result.rows[0];
     if (!(await bcrypt.compare(password, data.password)))
       return res.status(401).json({ error: 'Invalid credentials' });
 
     const user = {
-      id: doc.id,
+      id: data.id,
       name: data.name,
       email: data.email,
       role: data.role,
       required_hours: data.required_hours,
-      starting_hours: data.starting_hours || 0,
+      starting_hours: data.starting_hours,
       company: data.company,
     };
 
-    const token = jwt.sign({ id: doc.id, role: data.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: data.id, role: data.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
     res.json({ user, token });
   } catch (err) {
     console.error(err);
@@ -77,50 +60,45 @@ const login = async (req, res) => {
 
 const me = async (req, res) => {
   try {
-    const doc = await usersCol.doc(req.user.id).get();
-    if (!doc.exists) return res.status(404).json({ error: 'User not found' });
-    const data = doc.data();
-    const { password: _, ...safe } = data;
-    res.json({ id: doc.id, ...safe });
+    const result = await pool.query(
+      'SELECT id, name, email, role, required_hours, starting_hours, company, created_at FROM users WHERE id = $1',
+      [req.user.id]
+    );
+    if (!result.rows.length) return res.status(404).json({ error: 'User not found' });
+    res.json(result.rows[0]);
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
   }
 };
 
 const updateUser = async (req, res) => {
-    const { id } = req.params
-    const { name, email, required_hours, starting_hours } = req.body
-    try {
-      await usersCol.doc(id).update({
-        name,
-        email,
-        required_hours: Number(required_hours),
-        starting_hours: Number(starting_hours),
-      })
-      const doc = await usersCol.doc(id).get()
-      const { password: _, ...safe } = doc.data()
-      res.json({ id: doc.id, ...safe })
-    } catch (err) {
-      console.error(err)
-      res.status(500).json({ error: 'Server error' })
-    }
+  const { id } = req.params;
+  const { name, email, required_hours, starting_hours } = req.body;
+  try {
+    const result = await pool.query(
+      `UPDATE users SET name=$1, email=$2, required_hours=$3, starting_hours=$4
+       WHERE id=$5
+       RETURNING id, name, email, role, required_hours, starting_hours, company, created_at`,
+      [name, email, Number(required_hours), Number(starting_hours), id]
+    );
+    if (!result.rows.length) return res.status(404).json({ error: 'User not found' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
   }
-  
-  const deleteUser = async (req, res) => {
-    const { id } = req.params
-    try {
-      // Delete all logs for this user
-      const logs = await db.collection('time_logs').where('user_id', '==', id).get()
-      const batch = db.batch()
-      logs.docs.forEach(doc => batch.delete(doc.ref))
-      await batch.commit()
-      // Delete user
-      await usersCol.doc(id).delete()
-      res.json({ success: true })
-    } catch (err) {
-      console.error(err)
-      res.status(500).json({ error: 'Server error' })
-    }
-  }
+};
 
-  module.exports = { register, login, me, updateUser, deleteUser }
+const deleteUser = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query('DELETE FROM users WHERE id=$1 RETURNING id', [id]);
+    if (!result.rows.length) return res.status(404).json({ error: 'User not found' });
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+module.exports = { register, login, me, updateUser, deleteUser };
