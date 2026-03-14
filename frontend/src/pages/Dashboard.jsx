@@ -221,7 +221,7 @@ export default function Dashboard() {
   const [certGenerating, setCertGenerating] = useState(false)
   const startingHours = user?.starting_hours || 0
   const requiredHours = user?.required_hours || 486
-  const grandTotal = startingHours + totalHours
+  const grandTotal = Number(startingHours) + Number(totalHours)
   const pct = Math.min(100, ((grandTotal / requiredHours) * 100)).toFixed(1)
   const remaining = Math.max(0, requiredHours - grandTotal).toFixed(2)
 
@@ -239,7 +239,7 @@ export default function Dashboard() {
       ])
       setToday(todayRes.data)
       setLogs(logsRes.data.logs)
-      setTotalHours(logsRes.data.totalHours)
+      setTotalHours(Number(logsRes.data.totalHours || 0))
       setAbsentDates(absentsRes.data.dates)
     } catch (err) {
       console.error('Fetch error:', err)
@@ -323,7 +323,7 @@ export default function Dashboard() {
       const d = new Date(l.date)
       return d >= monday && d <= friday
     })
-    const weekHours = weekLogs.reduce((sum, l) => sum + (l.hours_rendered || 0), 0)
+    const weekHours = weekLogs.reduce((sum, l) => sum + Number(l.hours_rendered || 0), 0)
     const daysPresent = weekLogs.length
     const htmlContent = `
       <div style="width:750px;background:white;border:8px solid #0ea5e9;padding:50px;text-align:center;position:relative;font-family:Georgia,serif;">
@@ -637,7 +637,7 @@ export default function Dashboard() {
                       const d = new Date(l.date)
                       return d >= week.monday && d <= week.friday
                     })
-                    const weekHours = weekLogs.reduce((sum, l) => sum + (l.hours_rendered || 0), 0)
+                    const weekHours = weekLogs.reduce((sum, l) => sum + Number(l.hours_rendered || 0), 0)
                     return (
                       <div
                         key={week.offset}
