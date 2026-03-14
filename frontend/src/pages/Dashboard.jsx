@@ -219,11 +219,11 @@ export default function Dashboard() {
   const [showWeekPicker, setShowWeekPicker] = useState(false)
   const [selectedWeekOffset, setSelectedWeekOffset] = useState(0)
   const [certGenerating, setCertGenerating] = useState(false)
-  const startingHours = user?.starting_hours || 0
-  const requiredHours = user?.required_hours || 486
+  const startingHours = Number(user?.starting_hours || 0)
+  const requiredHours = Number(user?.required_hours || 486)
   const grandTotal = Number(startingHours) + Number(totalHours)
-  const pct = Math.min(100, ((grandTotal / requiredHours) * 100)).toFixed(1)
-  const remaining = Math.max(0, requiredHours - grandTotal).toFixed(2)
+  const pct = Number(Math.min(100, (grandTotal / requiredHours) * 100 || 0)).toFixed(1)
+  const remaining = Number(Math.max(0, requiredHours - grandTotal)).toFixed(2)
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
