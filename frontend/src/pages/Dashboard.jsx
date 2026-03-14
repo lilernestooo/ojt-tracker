@@ -221,8 +221,8 @@ export default function Dashboard() {
   const [certGenerating, setCertGenerating] = useState(false)
   const startingHours = Number(user?.starting_hours || 0)
   const requiredHours = Number(user?.required_hours || 486)
-  const grandTotal = Number(startingHours) + Number(totalHours)
-  const pct = Number(Math.min(100, (grandTotal / requiredHours) * 100 || 0)).toFixed(1)
+  const grandTotal = Number(Number(startingHours) + Number(totalHours) || 0)
+  const pct = Number(Math.min(100, ((grandTotal / requiredHours) || 0) * 100)).toFixed(1)
   const remaining = Number(Math.max(0, requiredHours - grandTotal)).toFixed(2)
 
   useEffect(() => {
@@ -537,7 +537,7 @@ export default function Dashboard() {
               {[
                 { label: 'Time In', value: fmt(today?.time_in), color: '#0ea5e9' },
                 { label: 'Time Out', value: fmt(today?.time_out), color: '#64748b' },
-                { label: 'Hours', value: today?.hours_rendered ? `${today.hours_rendered}h` : '—', color: '#10b981' },
+                { label: 'Hours', value: today?.hours_rendered ? `${Number(today.hours_rendered).toFixed(2)}h` : '—', color: '#10b981' },
               ].map(item => (
                 <div key={item.label} className="border-2 border-slate-100 p-4 text-center">
                   <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2">{item.label}</p>
@@ -694,7 +694,7 @@ export default function Dashboard() {
                     <span className="text-slate-600">{fmt(log.time_in)}</span>
                     <span className="text-slate-600">{fmt(log.time_out)}</span>
                     <span className="font-black" style={{ color: '#0ea5e9' }}>
-                      {log.hours_rendered ? `${log.hours_rendered}h` : '—'}
+                      {log.hours_rendered ? `${Number(log.hours_rendered).toFixed(2)}h` : '—'}
                     </span>
                   </div>
                 ))}
