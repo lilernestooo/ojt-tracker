@@ -1,12 +1,18 @@
-const { Pool } = require('pg');
+const { Pool } = require("pg");
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
-pool.on('error', (err) => {
-  console.error('Unexpected DB error:', err);
+pool.on("connect", () => {
+  console.log("PostgreSQL connected");
 });
-//asim
+
+pool.on("error", (err) => {
+  console.error("Unexpected DB error:", err);
+});
+
 module.exports = pool;
