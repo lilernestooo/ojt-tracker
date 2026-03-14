@@ -198,7 +198,7 @@ const markAbsent = async (req, res) => {
   }
 };
 
-// Get all absent dates for current users
+// Get all absent dates for current userss
 const getAbsents = async (req, res) => {
   const userId = req.user.id;
   try {
