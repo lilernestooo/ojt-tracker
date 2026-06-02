@@ -11,8 +11,11 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('token')
     if (token) {
       authAPI.me()
-        .then(res => setUser(res.data))
-        .catch(() => localStorage.removeItem('token'))
+        .then(res => setUser(res.data)) // ✅ /me returns user object directly
+        .catch(() => {
+          localStorage.removeItem('token')
+          setUser(null)
+        })
         .finally(() => setLoading(false))
     } else {
       setLoading(false)
@@ -21,9 +24,10 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const res = await authAPI.login({ email, password })
-    localStorage.setItem('token', res.data.token)
-    setUser(res.data.user)
-    return res.data.user
+    const { token, user } = res.data // ✅ destructure correctly
+    localStorage.setItem('token', token)
+    setUser(user)
+    return user // ✅ return user so Login.jsx can check the role
   }
 
   const register = async (data) => {
@@ -33,6 +37,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('token')
     setUser(null)
+    window.location.href = '/login' // ✅ force full redirect on logout
   }
 
   return (
