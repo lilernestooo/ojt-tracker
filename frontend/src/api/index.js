@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'https://ojt-tracker-aber.onrender.com/api'
+  baseURL: 'https://ojt-tracker-r318.onrender.com/api'
 })
 
 api.interceptors.request.use(cfg => {
