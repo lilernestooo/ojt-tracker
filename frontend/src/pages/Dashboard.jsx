@@ -183,7 +183,7 @@ function Navbar() {
           <img src={logo} alt="logo" className="w-10 h-10 object-contain" />
           <span className="font-black text-slate-900 text-xl tracking-tight"
             style={{ fontFamily: 'Georgia, serif' }}>
-            OJT Tracker
+            Track me!
           </span>
         </div>
         <div className="flex items-center gap-4">
@@ -329,7 +329,7 @@ export default function Dashboard() {
       <div style="width:750px;background:white;border:8px solid #0ea5e9;padding:50px;text-align:center;position:relative;font-family:Georgia,serif;">
         <div style="position:absolute;inset:8px;border:2px solid #bae6fd;pointer-events:none;"></div>
         <img src="${logo}" alt="logo" style="width:80px;height:80px;object-fit:contain;margin:0 auto 5px;display:block;" />
-        <div style="font-size:13px;color:#64748b;letter-spacing:4px;text-transform:uppercase;margin-bottom:25px;">OJT Tracker</div>
+        <div style="font-size:13px;color:#64748b;letter-spacing:4px;text-transform:uppercase;margin-bottom:25px;">Track me!</div>
         <div style="font-size:34px;color:#0ea5e9;font-weight:bold;margin-bottom:6px;">Weekly Hours Certificate</div>
         <div style="font-size:13px;color:#94a3b8;margin-bottom:25px;letter-spacing:3px;text-transform:uppercase;">Certificate of Attendance</div>
         <div style="font-size:14px;color:#64748b;margin-bottom:8px;">This certifies that</div>
@@ -355,7 +355,7 @@ export default function Dashboard() {
         <div style="margin-top:25px;font-size:12px;color:#94a3b8;">
           Generated on ${new Date().toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric' })}
         </div>
-        <div style="margin-top:5px;font-size:11px;color:#cbd5e1;">Developed by Ernesto • OJT Tracker</div>
+        <div style="margin-top:5px;font-size:11px;color:#cbd5e1;">Developed by Ernesto • Track me!</div>
       </div>
     `
     await generatePDF(htmlContent, `weekly-cert-${user?.name}-${monday.toISOString().split('T')[0]}.pdf`)
@@ -369,7 +369,7 @@ export default function Dashboard() {
       <div style="width:800px;background:white;border:10px double #0ea5e9;padding:60px;text-align:center;position:relative;font-family:Georgia,serif;">
         <div style="position:absolute;inset:10px;border:1px solid #e0f2fe;pointer-events:none;"></div>
         <img src="${logo}" alt="logo" style="width:80px;height:80px;object-fit:contain;margin:0 auto 5px;display:block;" />
-        <div style="font-size:12px;color:#64748b;letter-spacing:5px;text-transform:uppercase;margin-bottom:10px;">OJT Tracker</div>
+        <div style="font-size:12px;color:#64748b;letter-spacing:5px;text-transform:uppercase;margin-bottom:10px;">Track me!</div>
         <div style="font-size:22px;color:#fbbf24;margin-bottom:20px;letter-spacing:5px;">★ ★ ★ ★ ★</div>
         <div style="font-size:44px;color:#0ea5e9;font-weight:bold;margin-bottom:8px;">Certificate of Completion</div>
         <div style="font-size:12px;color:#94a3b8;margin-bottom:35px;letter-spacing:4px;text-transform:uppercase;">On-the-Job Training</div>
@@ -394,7 +394,7 @@ export default function Dashboard() {
         <div style="margin-top:30px;padding-top:18px;border-top:1px solid #e2e8f0;font-size:12px;color:#94a3b8;">
           Completed on ${new Date().toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric' })}
         </div>
-        <div style="margin-top:6px;font-size:11px;color:#cbd5e1;">Developed by Ernesto • OJT Tracker</div>
+        <div style="margin-top:6px;font-size:11px;color:#cbd5e1;">Developed by Ernesto • Track me!</div>
       </div>
     `
     await generatePDF(htmlContent, `completion-cert-${user?.name}.pdf`)
@@ -708,7 +708,7 @@ export default function Dashboard() {
 
           {/* Footer */}
           <p className="text-center text-slate-300 text-xs pb-4">
-            Developed by <span className="font-bold text-sky-400">Ernesto</span> • OJT Tracker
+            Developed by <span className="font-bold text-sky-400">Ernesto</span> • Track me!
           </p>
 
         </div>

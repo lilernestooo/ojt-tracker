@@ -23,7 +23,7 @@ function Navbar() {
           <img src={logo} alt="logo" className="w-10 h-10 object-contain" />
           <span className="font-black text-slate-900 text-xl tracking-tight"
             style={{ fontFamily: 'Georgia, serif' }}>
-            OJT Tracker
+            Track me!
           </span>
           <span className="text-white text-xs font-black px-3 py-1 uppercase tracking-wider"
             style={{ background: 'linear-gradient(135deg, #0ea5e9, #38bdf8)' }}>
@@ -648,7 +648,7 @@ export default function AdminDashboard() {
 
           {/* Footer */}
           <p className="text-center text-slate-300 text-xs pb-4">
-            Developed by <span className="font-bold text-sky-400">Ernesto</span> • OJT Tracker
+            Developed by <span className="font-bold text-sky-400">Ernesto</span> • Track me!
           </p>
 
         </div>

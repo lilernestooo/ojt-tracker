@@ -56,7 +56,7 @@ export default function Register() {
 
           <h1 className="text-4xl font-black text-white tracking-tight text-center"
             style={{ fontFamily: 'Georgia, serif', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
-            OJT Tracker
+            Track me!
           </h1>
           <p className="text-sky-100 text-center mt-2 text-base max-w-xs font-medium">
             Track your internship hours and get certified every week 🎓
@@ -93,7 +93,7 @@ export default function Register() {
         <div className="flex md:hidden items-center gap-3 mb-8">
           <img src={logo} alt="logo" className="w-12 h-12 object-contain" />
           <span className="text-2xl font-black text-slate-900" style={{ fontFamily: 'Georgia, serif' }}>
-            OJT Tracker
+            Track me!
           </span>
         </div>
 
@@ -232,7 +232,7 @@ export default function Register() {
           </div>
 
           <p className="text-center text-slate-400 text-xs mt-8">
-            Developed by <span className="font-bold text-sky-500">Ernesto</span> • OJT Tracker
+            Developed by <span className="font-bold text-sky-500">Ernesto</span> • Track me!
           </p>
         </div>
       </div>
