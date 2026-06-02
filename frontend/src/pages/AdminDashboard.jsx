@@ -168,12 +168,22 @@ export default function AdminDashboard() {
     }
   }
 
-  const pct = (t) => {
-    const total = (t.starting_hours || 0) + parseFloat(t.total_hours)
-    return Math.min(100, ((total / t.required_hours) * 100)).toFixed(0)
-  }
+ const pct = (t) => {
+  const starting = Number(t.starting_hours || 0)
+  const logged = Number(t.total_hours || 0)
+  const required = Number(t.required_hours || 1)
 
-  const grandTotal = (t) => ((t.starting_hours || 0) + parseFloat(t.total_hours)).toFixed(2)
+  const total = starting + logged
+  const percent = Math.min(100, (total / required) * 100)
+
+  return Number(percent || 0).toFixed(0)
+}
+
+  const grandTotal = (t) => {
+  const starting = Number(t.starting_hours || 0)
+  const logged = Number(t.total_hours || 0)
+  return (starting + logged).toFixed(2)
+}
 
   const filtered = trainees.filter(t =>
     t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -610,7 +620,7 @@ export default function AdminDashboard() {
                               <td className="px-4 py-3 text-slate-600 text-sm">{fmt(log.time_out)}</td>
                               <td className="px-4 py-3">
                                 <span className="font-black text-sm" style={{ color: '#0ea5e9' }}>
-                                  {log.hours_rendered ? `${log.hours_rendered}h` : '—'}
+                                  {log.hours_rendered ? `${Number(log.hours_rendered).toFixed(2)}h` : '—'}
                                 </span>
                               </td>
                               <td className="px-4 py-3 text-slate-400 text-sm">{log.notes || '—'}</td>

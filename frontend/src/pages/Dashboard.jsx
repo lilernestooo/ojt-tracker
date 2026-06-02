@@ -219,11 +219,11 @@ export default function Dashboard() {
   const [showWeekPicker, setShowWeekPicker] = useState(false)
   const [selectedWeekOffset, setSelectedWeekOffset] = useState(0)
   const [certGenerating, setCertGenerating] = useState(false)
-  const startingHours = user?.starting_hours || 0
-  const requiredHours = user?.required_hours || 486
-  const grandTotal = startingHours + totalHours
-  const pct = Math.min(100, ((grandTotal / requiredHours) * 100)).toFixed(1)
-  const remaining = Math.max(0, requiredHours - grandTotal).toFixed(2)
+  const startingHours = Number(user?.starting_hours || 0)
+  const requiredHours = Number(user?.required_hours || 486)
+  const grandTotal = Number(Number(startingHours) + Number(totalHours) || 0)
+  const pct = Number(Math.min(100, ((grandTotal / requiredHours) || 0) * 100)).toFixed(1)
+  const remaining = Number(Math.max(0, requiredHours - grandTotal)).toFixed(2)
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
@@ -239,7 +239,7 @@ export default function Dashboard() {
       ])
       setToday(todayRes.data)
       setLogs(logsRes.data.logs)
-      setTotalHours(logsRes.data.totalHours)
+      setTotalHours(Number(logsRes.data.totalHours || 0))
       setAbsentDates(absentsRes.data.dates)
     } catch (err) {
       console.error('Fetch error:', err)
@@ -323,7 +323,7 @@ export default function Dashboard() {
       const d = new Date(l.date)
       return d >= monday && d <= friday
     })
-    const weekHours = weekLogs.reduce((sum, l) => sum + (l.hours_rendered || 0), 0)
+    const weekHours = weekLogs.reduce((sum, l) => sum + Number(l.hours_rendered || 0), 0)
     const daysPresent = weekLogs.length
     const htmlContent = `
       <div style="width:750px;background:white;border:8px solid #0ea5e9;padding:50px;text-align:center;position:relative;font-family:Georgia,serif;">
@@ -537,7 +537,7 @@ export default function Dashboard() {
               {[
                 { label: 'Time In', value: fmt(today?.time_in), color: '#0ea5e9' },
                 { label: 'Time Out', value: fmt(today?.time_out), color: '#64748b' },
-                { label: 'Hours', value: today?.hours_rendered ? `${today.hours_rendered}h` : '—', color: '#10b981' },
+                { label: 'Hours', value: today?.hours_rendered ? `${Number(today.hours_rendered).toFixed(2)}h` : '—', color: '#10b981' },
               ].map(item => (
                 <div key={item.label} className="border-2 border-slate-100 p-4 text-center">
                   <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2">{item.label}</p>
@@ -637,7 +637,7 @@ export default function Dashboard() {
                       const d = new Date(l.date)
                       return d >= week.monday && d <= week.friday
                     })
-                    const weekHours = weekLogs.reduce((sum, l) => sum + (l.hours_rendered || 0), 0)
+                    const weekHours = weekLogs.reduce((sum, l) => sum + Number(l.hours_rendered || 0), 0)
                     return (
                       <div
                         key={week.offset}
@@ -694,7 +694,7 @@ export default function Dashboard() {
                     <span className="text-slate-600">{fmt(log.time_in)}</span>
                     <span className="text-slate-600">{fmt(log.time_out)}</span>
                     <span className="font-black" style={{ color: '#0ea5e9' }}>
-                      {log.hours_rendered ? `${log.hours_rendered}h` : '—'}
+                      {log.hours_rendered ? `${Number(log.hours_rendered).toFixed(2)}h` : '—'}
                     </span>
                   </div>
                 ))}
