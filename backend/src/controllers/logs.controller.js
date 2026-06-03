@@ -181,8 +181,86 @@ const getAbsents = async (req, res) => {
   }
 };
 
+const runAutoTimeout = async (req, res) => {
+  const secret = req.headers['x-cron-secret'];
+  if (secret !== process.env.CRON_SECRET) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  // Current date in PHT
+  const nowPHT = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+  const todayPHT = nowPHT.toISOString().split('T')[0];
+
+  try {
+    // Get all logs for today with no time_out, joined with user's auto_timeout_time
+    const pending = await pool.query(
+      `SELECT tl.*, u.auto_timeout_time
+       FROM time_logs tl
+       JOIN users u ON u.id = tl.user_id
+       WHERE tl.date = $1
+         AND tl.time_out IS NULL`,
+      [todayPHT]
+    );
+
+    if (!pending.rows.length) {
+      return res.json({ message: 'No pending timeouts', updated: 0 });
+    }
+
+    let updated = 0;
+
+    for (const log of pending.rows) {
+      // auto_timeout_time from Postgres TIME column comes as "HH:MM:SS"
+      const [hours, minutes] = log.auto_timeout_time.split(':').map(Number);
+
+      // Convert PHT end time to UTC for storage (PHT = UTC+8)
+      const utcHour = hours - 8;
+      const autoTimeOutUTC = new Date(
+        `${todayPHT}T${String(utcHour).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00Z`
+      );
+
+      const timeIn = new Date(log.time_in);
+
+      // Skip if auto timeout is before or equal to time in (edge case)
+      if (autoTimeOutUTC <= timeIn) continue;
+
+      const rawHours = (autoTimeOutUTC - timeIn) / 3600000;
+      // Cap at 12h to be safe
+      const renderedHours = Math.min(parseFloat(rawHours.toFixed(2)), 12);
+
+      const timeLabel = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+
+      await pool.query(
+        `UPDATE time_logs
+         SET time_out       = $1,
+             hours_rendered = $2,
+             notes          = CASE
+                                WHEN notes IS NULL OR notes = ''
+                                THEN $3
+                                ELSE notes || E'\n' || $3
+                              END,
+             auto_timeout   = TRUE
+         WHERE id = $4`,
+        [
+          autoTimeOutUTC.toISOString(),
+          renderedHours,
+          `[Auto timed-out at ${timeLabel}]`,
+          log.id,
+        ]
+      );
+      updated++;
+    }
+
+    console.log(`[AutoTimeout] ${new Date().toISOString()} — timed out ${updated} trainee(s)`);
+    res.json({ message: `Auto timed-out ${updated} trainee(s)`, updated });
+  } catch (err) {
+    console.error('[AutoTimeout] Error:', err);
+    res.status(500).json({ error: 'Server error during auto-timeout' });
+  }
+};
+
 module.exports = {
   timeIn, timeOut, getMyLogs, getTodayLog,
   getAllTrainees, getTraineeLogs,
   markAbsent, getAbsents,
+  runAutoTimeout,
 };
