@@ -71,7 +71,7 @@ export default function AdminDashboard() {
   // Add trainee modal
   const [showAddModal, setShowAddModal] = useState(false)
   const [addForm, setAddForm] = useState({
-    name: '', email: '', password: '', required_hours: 486, starting_hours: 0
+    name: '', email: '', password: '', required_hours: 486, starting_hours: 0, auto_timeout_time: '17:00'
   })
   const [addLoading, setAddLoading] = useState(false)
   const [addErr, setAddErr] = useState('')
@@ -103,6 +103,7 @@ export default function AdminDashboard() {
       email: t.email,
       required_hours: t.required_hours,
       starting_hours: t.starting_hours || 0,
+      auto_timeout_time: t.auto_timeout_time ? t.auto_timeout_time.slice(0, 5) : '17:00',
     })
     setEditErr('')
     setShowEditModal(true)
@@ -117,6 +118,7 @@ export default function AdminDashboard() {
         email: editForm.email,
         required_hours: Number(editForm.required_hours),
         starting_hours: Number(editForm.starting_hours),
+        auto_timeout_time: editForm.auto_timeout_time || '17:00',
       })
       setShowEditModal(false)
       fetchTrainees()
@@ -159,7 +161,7 @@ export default function AdminDashboard() {
     try {
       await authAPI.register(addForm)
       setShowAddModal(false)
-      setAddForm({ name: '', email: '', password: '', required_hours: 486, starting_hours: 0 })
+      setAddForm({ name: '', email: '', password: '', required_hours: 486, starting_hours: 0, auto_timeout_time: '17:00' })
       fetchTrainees()
     } catch (err) {
       setAddErr(err.response?.data?.error || 'Registration failed')
@@ -243,6 +245,16 @@ export default function AdminDashboard() {
                     className="w-full border-2 border-slate-200 px-4 py-2.5 text-slate-900 focus:outline-none focus:border-sky-400 text-sm"
                   />
                 </div>
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block mb-1">Work End Time</label>
+                <input
+                  type="time"
+                  value={editForm.auto_timeout_time}
+                  onChange={e => setEditForm(f => ({ ...f, auto_timeout_time: e.target.value }))}
+                  className="w-full border-2 border-slate-200 px-4 py-2.5 text-slate-900 focus:outline-none focus:border-sky-400 text-sm"
+                />
+                <p className="text-slate-400 text-xs mt-1">System will auto time-out at this time if they forget.</p>
               </div>
               {editErr && (
                 <div className="border-l-4 border-red-500 bg-red-50 px-4 py-2">
@@ -351,6 +363,16 @@ export default function AdminDashboard() {
                     className="w-full border-2 border-slate-200 px-4 py-2.5 text-slate-900 focus:outline-none focus:border-sky-400 text-sm"
                   />
                 </div>
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block mb-1">Work End Time</label>
+                <input
+                  type="time"
+                  value={addForm.auto_timeout_time}
+                  onChange={e => setAddForm(f => ({ ...f, auto_timeout_time: e.target.value }))}
+                  className="w-full border-2 border-slate-200 px-4 py-2.5 text-slate-900 focus:outline-none focus:border-sky-400 text-sm"
+                />
+                <p className="text-slate-400 text-xs mt-1">System will auto time-out at this time if they forget.</p>
               </div>
               {addErr && (
                 <div className="border-l-4 border-red-500 bg-red-50 px-4 py-2">

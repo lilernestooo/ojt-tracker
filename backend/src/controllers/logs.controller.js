@@ -94,6 +94,7 @@ const getAllTrainees = async (req, res) => {
     const result = await pool.query(
       `SELECT
          u.id, u.name, u.email, u.company, u.required_hours,
+         u.starting_hours, u.auto_timeout_time,
          COALESCE(SUM(l.hours_rendered), 0)::NUMERIC(8,2) AS total_hours,
          COUNT(l.id)::INT AS days_attended
        FROM users u
