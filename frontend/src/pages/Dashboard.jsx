@@ -560,6 +560,24 @@ export default function Dashboard() {
               )
             )}
             
+            {today && !today.time_out && (() => {
+              const [endHour, endMin] = (user?.auto_timeout_time || '17:00').split(':').map(Number)
+              const phtNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' }))
+              const phtHour = phtNow.getHours()
+              const phtMin = phtNow.getMinutes()
+              const warnHour = endMin >= 30 ? endHour : endHour - 1
+              const warnMin = endMin >= 30 ? endMin - 30 : endMin + 30
+              const isPastWarning = phtHour > warnHour || (phtHour === warnHour && phtMin >= warnMin)
+              const label = `${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`
+              return isPastWarning ? (
+                <div className="border-l-4 border-amber-400 bg-amber-50 px-4 py-3 mb-3">
+                  <p className="text-amber-700 text-sm font-semibold">
+                    ⚠️ Almost {label}! Don't forget to time out — the system will auto-timeout at your set end time.
+                  </p>
+                </div>
+              ) : null
+            })()}
+
             {today && !today.time_out && (
               <div className="space-y-3">
                 <textarea
@@ -693,8 +711,13 @@ export default function Dashboard() {
                     <span className="text-slate-700 font-semibold">{fmtDate(log.date)}</span>
                     <span className="text-slate-600">{fmt(log.time_in)}</span>
                     <span className="text-slate-600">{fmt(log.time_out)}</span>
-                    <span className="font-black" style={{ color: '#0ea5e9' }}>
+                    <span className="font-black flex items-center gap-1" style={{ color: '#0ea5e9' }}>
                       {log.hours_rendered ? `${Number(log.hours_rendered).toFixed(2)}h` : '—'}
+                      {log.auto_timeout && (
+                        <span className="text-xs font-bold px-1.5 py-0.5 bg-amber-100 text-amber-600 border border-amber-300">
+                          AUTO
+                        </span>
+                      )}
                     </span>
                   </div>
                 ))}

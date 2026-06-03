@@ -8,7 +8,8 @@ export default function Register() {
   const navigate = useNavigate()
   const [form, setForm] = useState({
     name: '', email: '', password: '',
-    required_hours: 486, starting_hours: 0
+    required_hours: 486, starting_hours: 0,
+    auto_timeout_time: '17:00',
   })
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -194,6 +195,22 @@ export default function Register() {
                 />
               </div>
             </div>
+
+            <div>
+            <label className="text-sm font-bold text-slate-700 block mb-1.5 uppercase tracking-wider">
+              Work End Time
+            </label>
+            <input
+              name="auto_timeout_time"
+              type="time"
+              value={form.auto_timeout_time}
+              onChange={handle}
+              className="w-full border-2 border-slate-200 px-4 py-3 text-slate-900 focus:outline-none focus:border-sky-400 transition-all text-sm"
+            />
+            <p className="text-slate-400 text-xs mt-1">
+              The system will auto time-out at this time if you forget.
+            </p>
+          </div>
 
             <div className="border-l-4 border-sky-400 bg-sky-50 px-4 py-3">
               <p className="text-sky-700 text-xs">
