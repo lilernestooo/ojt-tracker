@@ -5,8 +5,11 @@ const {
   timeIn, timeOut, getMyLogs, getTodayLog,
   getAllTrainees, getTraineeLogs,
   markAbsent, getAbsents,
-  runAutoTimeout,
+  runAutoTimeout, ping,
 } = require('../controllers/logs.controller');
+
+// ── Ping (keep-alive) ──
+router.get('/ping', ping);
 
 // ── Cron (no auth — secured by CRON_SECRET header instead) ──
 router.post('/auto-timeout', runAutoTimeout);

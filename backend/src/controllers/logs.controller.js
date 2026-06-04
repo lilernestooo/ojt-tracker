@@ -259,9 +259,13 @@ const runAutoTimeout = async (req, res) => {
   }
 };
 
+const ping = (req, res) => {
+  res.json({ status: 'ok' });
+};
+
 module.exports = {
   timeIn, timeOut, getMyLogs, getTodayLog,
   getAllTrainees, getTraineeLogs,
   markAbsent, getAbsents,
-  runAutoTimeout,
+  runAutoTimeout, ping,
 };
