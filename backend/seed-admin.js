@@ -3,12 +3,17 @@ const bcrypt = require('bcryptjs');
 const pool = require('./src/db');
 
 async function seedAdmin() {
-  const email    = 'Ernesto@dev.com';
-  const password = 'admin022704';
-  const name     = 'Ernesto';
+  const email    = process.env.ADMIN_EMAIL;
+  const password = process.env.ADMIN_PASSWORD;
+  const name     = process.env.ADMIN_NAME;
+
+  if (!email || !password || !name) {
+    console.error('❌ Missing ADMIN_EMAIL, ADMIN_NAME, or ADMIN_PASSWORD in .env');
+    process.exit(1);
+  }
 
   try {
-    const hashed  = await bcrypt.hash(password, 10);
+    const hashed   = await bcrypt.hash(password, 10);
     const existing = await pool.query('SELECT id FROM users WHERE email=$1', [email]);
 
     if (existing.rows.length) {
