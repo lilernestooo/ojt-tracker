@@ -12,11 +12,16 @@ async function setup() {
     console.log('✅ Migrations done!');
 
     // Seed admin
-    const email = 'Ernesto@dev.com';
-    const password = 'admin022704';
-    const name = 'Ernesto';
-    const hashed = await bcrypt.hash(password, 10);
+    const email    = process.env.ADMIN_EMAIL;
+    const password = process.env.ADMIN_PASSWORD;
+    const name     = process.env.ADMIN_NAME;
 
+    if (!email || !password || !name) {
+      console.warn('⚠️ Skipping admin seed — ADMIN_EMAIL, ADMIN_NAME, or ADMIN_PASSWORD not set in .env');
+      return;
+    }
+
+    const hashed = await bcrypt.hash(password, 10);
     const existing = await pool.query('SELECT id FROM users WHERE email=$1', [email]);
 
     if (existing.rows.length) {
@@ -36,7 +41,6 @@ async function setup() {
   } catch (err) {
     console.error('❌ Setup error:', err.message);
   }
-  // ✅ NO pool.end() here — keeps connection alive for the server
 }
 
 module.exports = setup;
